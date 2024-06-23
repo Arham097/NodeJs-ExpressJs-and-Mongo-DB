@@ -28,20 +28,6 @@
         "price": 7.99
     },
     {
-        "name": "The Shawshank Redemption",
-        "description": "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
-        "duration": 142,
-        "ratings": 4.8,
-        "totalRating": 2800,
-        "releaseYear": 1994,
-        "releaseDate": "1994-09-23",
-        "Genres": ["Drama"],
-        "directors": ["Frank Darabont"],
-        "coverImage": "shawshank_redemption.jpg",
-        "actors": ["Tim Robbins", "Morgan Freeman"],
-        "price": 7.99
-    },
-    {
         "name": "The Dark Knight",
         "description": "When the menace known as The Joker emerges from his mysterious past, he wreaks havoc and chaos on the people of Gotham.",
         "duration": 152,

@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const fs = require('fs');
 const Movie = require('./../Models/movieModel');
 
-dotenv.config({path: './config/env'});
+dotenv.config({path: './config.env'});
 
 mongoose.connect(process.env.CONN_STRING,{
     useNewUrlParser : true
@@ -25,6 +25,7 @@ const deleteMovies = async()=>{
     catch(err){
         console.log(err.message);
     }
+    process.exit(0);
 }
 
 // IMPORT MOVIE DATA TO MONGODB COLLECTION
@@ -36,8 +37,9 @@ const importMovies = async()=>{
     catch(err){
         console.log(err.message);
     }
+    process.exit(0);
 }
-
+console.log(process.argv);
 // console.log(process.argv);
 if(process.argv[2]==="--delete"){
     deleteMovies();

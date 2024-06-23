@@ -1,0 +1,13 @@
+A new movie with name {kch bh} has been created by {Arham} at {Sat Jun 22 2024 07:53:46 GMT+0500 (Pakistan Standard Time)}
+A new movie with name {kch} has been created by {Arham} at {Sat Jun 22 2024 07:55:15 GMT+0500 (Pakistan Standard Time)}
+Query took 96 milliseconds
+Query took 79 milliseconds
+Query took 113 milliseconds
+Query took 120 milliseconds
+Query took 96 milliseconds
+A new movie with name {abc} has been created by {Arham} at {Sat Jun 22 2024 10:24:37 GMT+0500 (Pakistan Standard Time)}
+A new movie with name {arrrr} has been created by {Arham} at {Sat Jun 22 2024 10:27:30 GMT+0500 (Pakistan Standard Time)}
+Query took 97 milliseconds
+Query took 55 milliseconds
+Query took 58 milliseconds
+Query took 590 milliseconds

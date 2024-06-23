@@ -4,7 +4,7 @@
   "description": "Learn express js with node",
   "main": "app.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "nodemon server.js"
   },
   "author": "Syed Arham Hasan",
   "license": "ISC",

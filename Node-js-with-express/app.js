@@ -259,6 +259,9 @@ const express = require('express');
 const app = express();
 const MovieRouter = require('./Routes/moviesRoutes');
 const morgan = require('morgan');
+const customError = require('./Utils/customError');
+const globalErrorHandler = require('./Controllers/errorController');
+
 if(process.env.NODE_ENV ==="development"){
     app.use(morgan('dev'));
 }
@@ -266,7 +269,20 @@ if(process.env.NODE_ENV ==="development"){
 app.use(express.json());
 app.use(express.static('./public'));
 
-app.use('/api/v1/movies',MovieRouter)
+app.use('/api/v1/movies',MovieRouter); 
+
+// Default Route
+app.all('*',(req,res,next)=>{
+    // res.status(404).json({
+    //     status: 'failed',
+    //     message: `Can't find ${req.originalUrl} on this server`
+    // })
+    const err = new customError(`Can't find ${req.originalUrl} on this server`,404);
+    next(err);
+})  
+
+// Global Error Handling Middleware
+app.use(globalErrorHandler);
 
 module.exports = app;
 
