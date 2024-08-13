@@ -1,18 +1,18 @@
-const devError = (res,error)=>{
+const devError = (res, error) => {
     res.status(error.statusCode).json({
         status: error.status,
         message: error.message,
-        stackTrace : error.stack,
-        error : error
+        stackTrace: error.stack,
+        error: error
     })
-}  
-const prodError = (res,error)=>{
-    if(error.isOperational){
+}
+const prodError = (res, error) => {
+    if (error.isOperational) {
         res.status(error.statusCode).json({
             status: error.status,
             message: error.message
         })
-    }else{
+    } else {
         res.status(500).json({
             status: 'error',
             message: 'Something went wrong!'
@@ -21,15 +21,16 @@ const prodError = (res,error)=>{
 }
 
 
-module.exports = (error,req,res,next)=>{
-    error.statusCode =  error.statusCode || 500;
-    error.status = error.status || 'error'; 
+module.exports = (error, req, res, next) => {
+    error.statusCode = error.statusCode || 500;
+    error.status = error.status || 'error';
 
-    if(process.env.NODE_ENV === "development"){
-        devError(req,error);
+    if (process.env.NODE_ENV === "development") {
+
+        devError(res, error);
     }
-    else if(process.env.NODE_ENV === "production"){
-        prodError(res,error);
+    else if (process.env.NODE_ENV === "production") {
+        prodError(res, error);
     }
 
 }
