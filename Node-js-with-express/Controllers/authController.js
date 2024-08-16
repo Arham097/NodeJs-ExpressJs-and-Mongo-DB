@@ -3,6 +3,7 @@ const asyncErrorHandler = require('./../Utils/asyncErrorHandler');
 const jwt = require('jsonwebtoken');
 const CustomError = require('../Utils/customError');
 const util = require('util');
+const sendEmail = require('../Utils/email');
 
 const signupToken = id => {
   return jwt.sign({ id }, process.env.SECRET_STRING, {
@@ -75,7 +76,8 @@ exports.protect = asyncErrorHandler(async (req, res, next) => {
   }
 
   // 4. Check if user changed password after the token was issued or not
-  if (user.isPasswordChanged(decodedToken.iat)) {
+  const isPasswordChanged = await user.isPasswordChanged(decodedToken.iat);
+  if (isPasswordChanged) {
     const error = new CustomError('Password has been changed recently, please  login again.', 401);
     next(error);
   }
@@ -83,3 +85,54 @@ exports.protect = asyncErrorHandler(async (req, res, next) => {
   req.user = user;
   next();
 })
+
+exports.restrict = (role) => {
+  return (req, res, next) => {
+    if (req.user.role !== role) {
+      const error = new CustomError("You are not have permission to perform this action", 403);
+      next(error);
+    }
+    next();
+  }
+}
+
+exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
+  // 1. Get user based on POSTed email from DB
+  const user = await User.findOne({ email: req.body.email })
+  if (!user) {
+    const error = new CustomError('There is no user with this email address', 404);
+    return next(error);
+  }
+  // 2. Generate the random reset token
+  const resetToken = user.createResetPasswordToken();
+  await user.save({ validateBeforeSave: false });
+
+  // 3. Send it to user's email
+  const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
+  const message = "We have received a password reset request. The token is valid for 10 minutes only. Please visit the link below to reset your password. \n\n" + resetUrl;
+
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "Password changed request received",
+      message: message,
+    });
+    res.status(200).json({
+      status: 'success',
+      message: 'Token sent to email!'
+    });
+  }
+  catch (err) {
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    user.save({ validateBeforeSave: false });
+    return next(new CustomError('There was an error sending the password reset email. Try again later!', 500));
+  }
+
+
+
+});
+
+exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
+
+});

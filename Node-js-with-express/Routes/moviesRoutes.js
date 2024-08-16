@@ -18,8 +18,8 @@ router.route('/')
     .post(movieControllers.createMovie)
 
 router.route('/:id')
-    .get(movieControllers.getMovieById)
+    .get(authController.protect, movieControllers.getMovieById)
     .patch(movieControllers.updateMovie)
-    .delete(movieControllers.deleteMovie);
+    .delete(authController.protect, authController.restrict('admin'), movieControllers.deleteMovie);
 
 module.exports = router;
