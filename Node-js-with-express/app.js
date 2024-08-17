@@ -262,6 +262,7 @@ const morgan = require('morgan');
 const authRouter = require('./Routes/authRouter');
 const customError = require('./Utils/customError');
 const globalErrorHandler = require('./Controllers/errorController');
+const userRoute = require('./Routes/userRoute');
 
 if (process.env.NODE_ENV === "development") {
     app.use(morgan('dev'));
@@ -271,7 +272,8 @@ app.use(express.json());
 app.use(express.static('./public'));
 
 app.use('/api/v1/movies', MovieRouter);
-app.use('/api/v1/users', authRouter);
+app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/user', userRoute);
 
 // Default Route
 app.all('*', (req, res, next) => {

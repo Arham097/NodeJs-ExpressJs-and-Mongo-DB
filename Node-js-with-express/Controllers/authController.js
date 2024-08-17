@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const CustomError = require('../Utils/customError');
 const util = require('util');
 const sendEmail = require('../Utils/email');
+const crypto = require('crypto');
 
 const signupToken = id => {
   return jwt.sign({ id }, process.env.SECRET_STRING, {
@@ -11,17 +12,20 @@ const signupToken = id => {
   })
 }
 
-exports.signup = asyncErrorHandler(async (req, res, next) => {
-  const newUser = await User.create(req.body);
-  const token = signupToken(newUser._id);
-
-  res.status(201).json({
+exports.createSendToken = (user, statusCode, res) => {
+  const token = signupToken(user._id);
+  res.status(200).json({
     status: 'success',
     token,
     data: {
-      user: newUser
+      user
     }
   })
+}
+
+exports.signup = asyncErrorHandler(async (req, res, next) => {
+  const newUser = await User.create(req.body);
+  createSendToken(newUser, 201, res);
 })
 
 exports.login = asyncErrorHandler(async (req, res, next) => {
@@ -40,14 +44,7 @@ exports.login = asyncErrorHandler(async (req, res, next) => {
     const error = new CustomError("Incorrect Email or Password", 400);
     return next(error);
   }
-  const token = signupToken(user._id);
-
-
-  res.status(200).json({
-    status: 'success',
-    token,
-    user,
-  })
+  createSendToken(user, 200, res);
 })
 
 
@@ -135,4 +132,23 @@ exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
 
 exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
 
+  // 1. Get user based on the token
+  const token = crypto.createHash('sha256').update(req.params.token).digest('hex');
+  const user = await User.findOne({ passwordResetToken: token, passwordResetExpires: { $gt: Date.now() } });
+
+  if (!user) {
+    const error = new CustomError('Token is invalid or has expired', 400);
+    next(error);
+  }
+  // 2. Set the new password
+  user.password = req.body.password;
+  user.confirmPassword = req.body.confirmPassword;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  user.passwordChangedAt = Date.now();
+  user.save();
+
+  // 3. Log the user in, send JWT
+  createSendToken(user, 200, res);
 });
+
