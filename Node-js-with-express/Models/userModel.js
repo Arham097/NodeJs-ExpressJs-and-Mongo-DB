@@ -38,9 +38,16 @@ const userSchema = new mongoose.Schema({
       message: 'Password and Confirm Password are not matched'
     }
   },
+  active: {
+    type: Boolean,
+    default: true,
+    select: false
+  },
+
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
+
 })
 
 userSchema.pre('save', async function (next) {
@@ -48,6 +55,11 @@ userSchema.pre('save', async function (next) {
   //encrypt password before saving it
   this.password = await bcrypt.hash(this.password, 10);
   this.confirmPassword = undefined;
+  next();
+})
+
+userSchema.pre(/^find/, function (next) {
+  this.find({ active: { $ne: false } })
   next();
 })
 

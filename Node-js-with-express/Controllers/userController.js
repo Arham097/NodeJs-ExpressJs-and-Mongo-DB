@@ -7,6 +7,19 @@ const sendEmail = require('../Utils/email');
 const crypto = require('crypto');
 const authController = require('./authController');
 
+
+exports.getAllUsers = asyncErrorHandler(async (req, res, next) => {
+  const users = await User.find();
+
+  res.status(200).json({
+    status: 'success',
+    result: users.length,
+    data: {
+      users
+    }
+  })
+})
+
 const filterReqObj = (obj, ...allowedFields) => {
   const newObj = {};
   Object.keys(obj).forEach(props => {
@@ -44,12 +57,23 @@ exports.updateMe = asyncErrorHandler(async (req, res, next) => {
 
   // Update user details
   const filterObj = filterReqObj(req.body, 'name', 'email');
-  const user = await User.findByIdAndUpdate(req.user._id, filterObj, { runValidators: true, new: true });
+  const updatedUser = await User.findByIdAndUpdate(req.user._id, filterObj, { runValidators: true, new: true });
 
   res.status(200).json({
     status: 'success',
     data: {
-      user
+      user: updatedUser
     }
   })
 })
+
+exports.deleteMe = asyncErrorHandler(async (req, res, next) => {
+  await User.findByIdAndUpdate(req.user._id, { active: false });
+
+  res.status(204).json({
+    status: 'success',
+    data: null
+  })
+}
+
+)

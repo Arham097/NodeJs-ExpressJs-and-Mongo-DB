@@ -263,13 +263,33 @@ const authRouter = require('./Routes/authRouter');
 const customError = require('./Utils/customError');
 const globalErrorHandler = require('./Controllers/errorController');
 const userRoute = require('./Routes/userRoute');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const sanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+const hpp = require('hpp');
 
 if (process.env.NODE_ENV === "development") {
     app.use(morgan('dev'));
 }
 
-app.use(express.json());
+app.use(helmet());
+
+app.use(express.json({ limit: '10kb' }));
+
+app.use(sanitize());
+app.use(xss());
+app.use(hpp({ whitelist: ['duration', 'rating', 'year'] }));
+
 app.use(express.static('./public'));
+
+const limiter = rateLimit({
+    max: 100,
+    windowMs: 60 * 60 * 1000,
+    message: 'Too many request from this IP, Please try again in an hour'
+});
+
+app.use('/api', limiter);
 
 app.use('/api/v1/movies', MovieRouter);
 app.use('/api/v1/auth', authRouter);

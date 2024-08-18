@@ -12,9 +12,24 @@ const signupToken = id => {
   })
 }
 
-exports.createSendToken = (user, statusCode, res) => {
+const options = {
+  maxAge: process.env.LOGIN_EXPIRES,
+  httpOnly: true
+}
+
+if (process.env.NODE_ENV === 'production') {
+  options.secure = true;
+}
+
+
+const createSendToken = (user, statusCode, res) => {
   const token = signupToken(user._id);
-  res.status(200).json({
+
+  res.cookie('jwt', token, options)
+
+  user.password = undefined;
+
+  res.status(statusCode).json({
     status: 'success',
     token,
     data: {
@@ -44,6 +59,7 @@ exports.login = asyncErrorHandler(async (req, res, next) => {
     const error = new CustomError("Incorrect Email or Password", 400);
     return next(error);
   }
+
   createSendToken(user, 200, res);
 })
 
